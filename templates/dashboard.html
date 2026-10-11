@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureLink Security Dashboard</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background: #1f2937;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .container {
+            width: 90%;
+            margin: 30px auto;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            margin: 10px 0;
+            font-size: 32px;
+        }
+
+        .history {
+            margin-top: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background: #f0f0f0;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>🛡️ SecureLink Security Dashboard</h1>
+    <p>AI-Based Secure Link Detection & Phishing Prevention System</p>
+</header>
+
+<div class="container">
+
+    <div class="cards">
+
+        <div class="card">
+            <h3>Total Scans</h3>
+            <h2 id="total-scans">0</h2>
+        </div>
+
+        <div class="card">
+            <h3>Safe Links</h3>
+            <h2 id="safe-links">0</h2>
+        </div>
+
+        <div class="card">
+            <h3>Suspicious Links</h3>
+            <h2 id="suspicious-links">0</h2>
+        </div>
+
+        <div class="card">
+            <h3>Malicious Links</h3>
+            <h2 id="malicious-links">0</h2>
+        </div>
+
+    </div>
+
+    <div class="history">
+        <h2>Recent URL Scans</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>URL</th>
+                    <th>Result</th>
+                    <th>Risk Score</th>
+                    <th>IP Address</th>
+                    <th>Time</th>
+                </tr>
+            </thead>
+
+            <tbody id="history-table">
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+
+async function loadStats() {
+
+    const response = await fetch("/api/stats");
+    const data = await response.json();
+
+    document.getElementById("total-scans").textContent =
+        data.total_scans;
+
+    document.getElementById("safe-links").textContent =
+        data.safe_links;
+
+    document.getElementById("suspicious-links").textContent =
+        data.suspicious_links;
+
+    document.getElementById("malicious-links").textContent =
+        data.malicious_links;
+}
+
+
+async function loadHistory() {
+
+    const response = await fetch("/api/history");
+    const data = await response.json();
+
+    const table = document.getElementById("history-table");
+
+    table.innerHTML = "";
+
+    data.history.forEach(scan => {
+
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+            <td>${scan.id}</td>
+            <td>${scan.url}</td>
+            <td>${scan.result}</td>
+            <td>${scan.risk_score}</td>
+            <td>${scan.ip_address}</td>
+            <td>${scan.scanned_at}</td>
+        `;
+
+        table.appendChild(row);
+    });
+}
+
+
+loadStats();
+loadHistory();
+
+</script>
+
+</body>
+</html>
+
